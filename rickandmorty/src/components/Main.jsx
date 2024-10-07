@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from "react";
 
-const apiUrl = "https://rickandmortyapi.com/api/character";
-
-const Main = () => {
+const Main = ({ currentPage, setCurrentPage }) => {
   const [characters, setCharacters] = useState([]);
   const [expandedCharacterId, setExpandedCharacterId] = useState(null);
 
-  const getCharacters = async () => {
-    try {
-      const response = await fetch(apiUrl);
-      const data = await response.json();
-      setCharacters(data.results);
-    } catch (error) {
-      console.error("Error fetching characters:", error);
-    }
-  };
-
   useEffect(() => {
-    getCharacters();
-  }, []);
+    const getCharacters = async (url) => {
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        setCharacters(data.results);
+        setCurrentPage(url); // Actualiza la página actual
+      } catch (error) {
+        console.error("Error fetching characters:", error);
+      }
+    };
+
+    getCharacters(currentPage); // Llama cada vez que cambia la página
+  }, [currentPage, setCurrentPage]); // Incluye las dependencias necesarias
 
   const handleToggleDetails = (characterId) => {
     setExpandedCharacterId(
@@ -55,11 +54,11 @@ const Main = () => {
               </p>
               <p className="text-center text-gray-200">
                 Origin:{" "}
-                <span className="font-semibold">{character.origin.name}</span>
+                <span className="font-semibold">{character.origin?.name || "Unknown"}</span>
               </p>
               <p className="text-center text-gray-200">
-                location:{" "}
-                <span className="font-semibold">{character.location.name}</span>
+                Location:{" "}
+                <span className="font-semibold">{character.location?.name || "Unknown"}</span>
               </p>
               <div className="flex justify-around mt-4">
                 <button
